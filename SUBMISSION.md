@@ -41,7 +41,7 @@ Rebuild: `npm run build`, `npx vite build --config video/vite.config.mjs`, start
 | t | picture |
 |---|---|
 | 0–7.6 | Full-frame grey mystery map. "No title. No legend." / "Every country is shaded by one real fact." |
-| 7.6–12 | The map shrinks into the phone (the Reddit post's feed card); tap Play; the How to play card |
+| 7.6–12 | The map shrinks into the phone; **real Reddit screen recording**: r/GraticuleDaily scrolls to the Graticule post, tap, the game opens with How to play |
 | 12–18.7 | Push-in: tap Canada, India, Saudi Arabia, and the readout names each level |
 | 18.9–24.7 | A wrong guess strikes through; Hint 1 rings Qatar and Hong Kong |
 | 24.9–31 | The right answer, and the map **blooms** from grey to colour (camera push-in, music stops for a beat) |
