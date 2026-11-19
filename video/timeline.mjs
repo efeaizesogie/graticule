@@ -65,7 +65,7 @@ export const PHASE = {
 export const BLOOM_AT = 26.85; // correct answer lands
 
 // Optional real-Reddit phone recording shown inside the phone (video/clips/reddit-clip.mp4, made by prep-clip.mjs).
-export const INSERT = { t0: 8.6, t1: 12.0, src: '/stage/reddit-clip.mp4' };
+export const INSERT = { t0: 8.6, t1: 11.4, frames: '/stage/reddit/', fps: 30 };
 
 // Camera push-ins on the phone's map: [in start, in end, out start, out end, scale]
 export const ZOOMS = [

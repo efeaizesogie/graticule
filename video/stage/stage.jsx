@@ -91,7 +91,7 @@ function Stage({ T }) {
         <div className="phone__screen" style={{ width: SCREEN.w, height: SCREEN.h }}>
           <div className="phone__status"><span>9:41</span><span className="phone__notch" /><span className="phone__icons"><i /><i /><b /></span></div>
           <iframe id="game" title="game" src={`/splash.html`} style={{ top: PHONE.status, width: PHONE.w, height: PHONE.h, transform: `scale(${PHONE.scale})` }} />
-          {window.__HAS_CLIP && <video id="clip" className="phone__clip" src={INSERT.src} muted playsInline preload="auto"
+          {window.__HAS_CLIP && T > INSERT.t0 - 0.05 && T < INSERT.t1 && <img id="clip" className="phone__clip" alt="" src={clipFrame(T)}
             style={{ opacity: Math.min(prog(T, INSERT.t0, INSERT.t0 + 0.25), 1 - prog(T, INSERT.t1 - 0.25, INSERT.t1)) }} />}
         </div>
       </div>
@@ -189,20 +189,18 @@ function injectFrameCss() {
   doc.head?.appendChild(st);
 }
 
-async function seekClip(T) {
-  const v = document.getElementById('clip');
-  if (!v || T < INSERT.t0 - 0.05 || T > INSERT.t1) return;
-  const want = Math.max(0, T - INSERT.t0);
-  if (Math.abs(v.currentTime - want) < 0.001) return;
-  await new Promise((res) => {
-    v.addEventListener('seeked', res, { once: true });
-    v.currentTime = want;
-  });
+function clipFrame(T) {
+  const i = Math.max(1, Math.round((T - INSERT.t0) * INSERT.fps) + 1);
+  return `${INSERT.frames}${String(i).padStart(4, '0')}.jpg`;
+}
+async function seekClip() {
+  const img = document.getElementById('clip');
+  if (img) await img.decode().catch(() => undefined);
 }
 
 window.__frame = async (T) => {
   flushSync(() => root.render(<Stage T={T} />));
-  await seekClip(T);
+  await seekClip();
   injectFrameCss();
   scrollFor(T);
   tick(document, T);
@@ -238,7 +236,7 @@ try {
 }
 window.__DAY = DAY;
 window.__HAS_CLIP = false;
-fetch(INSERT.src, { method: 'HEAD' })
+fetch(`${INSERT.frames}0001.jpg`, { method: 'HEAD' })
   .then((r) => { window.__HAS_CLIP = r.ok; })
   .catch(() => undefined)
   .finally(() => window.__frame(0));
