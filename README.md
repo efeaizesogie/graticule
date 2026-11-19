@@ -8,7 +8,7 @@ Graticule is a daily game for Reddit, built on Devvit Web. Each day a new post s
 
 Built so any random redditor can get it: everyday topics (internet use, how long people live, how rich, how crowded, forests, air pollution…), answers in plain English, and only four choices.
 
-1. Open today's post and tap **Play today's map**. A three-line *How to play* card appears the first time (reopen it any time with **?**).
+1. Open today's post and tap **Play today's map**. A three-line *How to play* card appears the first time (reopen it any time from the **How to play** tab).
 2. Every country is shaded by one real fact. **Darker = more.**
 3. **The clue** is there from the start: the three countries with the *most* and the three with the *least* (tap a name to find it on the map). What do they have in common?
 4. Tap any country to check it: *Very low* … *Middle* … *Very high*. Pick 1 of **4 answers** (each has an icon) and **Lock in**. You have **3 tries**.
