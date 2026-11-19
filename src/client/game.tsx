@@ -31,13 +31,48 @@ const helpSeen = () => {
 function App() {
   const [view, setView] = useState<View>({ kind: 'play' });
   const [toast, setToast] = useToast();
+  const [help, setHelp] = useState(() => !helpSeen());
+  const closeHelp = () => {
+    setHelp(false);
+    try {
+      localStorage.setItem(HELP_KEY, '1');
+    } catch {
+      /* private mode */
+    }
+  };
+  const go = (v: View) => {
+    setView(v);
+    window.scrollTo(0, 0);
+  };
   return (
     <div className="app">
-      {view.kind === 'play' && <Play key={view.n ?? 'today'} n={view.n} go={setView} toast={setToast} />}
-      {view.kind === 'archive' && <Archive go={setView} />}
-      {view.kind === 'board' && <Board go={setView} />}
-      {toast && <div className="toast mono">{toast}</div>}
+      <Nav view={view} go={go} onHelp={() => setHelp(true)} />
+      {view.kind === 'play' && <Play key={view.n ?? 'today'} n={view.n} go={go} toast={setToast} />}
+      {view.kind === 'archive' && <Archive go={go} />}
+      {view.kind === 'board' && <Board />}
+      {help && <HowTo close={closeHelp} />}
+      {toast && <div className="toast mono" role="status">{toast}</div>}
     </div>
+  );
+}
+
+function Nav({ view, go, onHelp }: { view: View; go: (v: View) => void; onHelp: () => void }) {
+  const tab = (kind: View['kind'], label: string) => (
+    <button
+      className={`tab ${view.kind === kind && !(kind === 'play' && view.kind === 'play' && view.n) ? 'is-on' : ''}`}
+      aria-current={view.kind === kind ? 'page' : undefined}
+      onClick={() => go(kind === 'play' ? { kind: 'play' } : kind === 'archive' ? { kind: 'archive' } : { kind: 'board' })}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <nav className="tabs" aria-label="Graticule">
+      {tab('play', 'Today')}
+      {tab('archive', 'Archive')}
+      {tab('board', 'Leaderboard')}
+      <button className="tab tab--help" onClick={onHelp} aria-label="How to play">How to play</button>
+    </nav>
   );
 }
 
@@ -49,15 +84,6 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
   const [picked, setPicked] = useState<number | null>(null);
   const [probe, setProbe] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [help, setHelp] = useState(() => !helpSeen());
-  const closeHelp = () => {
-    setHelp(false);
-    try {
-      localStorage.setItem(HELP_KEY, '1');
-    } catch {
-      /* private mode */
-    }
-  };
 
   useEffect(() => {
     api<PuzzleState>(`/state${n ? `?n=${n}` : ''}`).then(setS, (e: Error) => setErr(e.message));
@@ -99,15 +125,13 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
         <span className="wordmark">GRATICULE</span>
         <span className="mono muted">N°{pad3(s.n)}</span>
         <span className="spacer" />
+        <span className="mono muted">{MAX_TRIES - s.game.guesses.length > 0 && !done ? `${MAX_TRIES - s.game.guesses.length} ${MAX_TRIES - s.game.guesses.length === 1 ? 'try' : 'tries'} left` : ''}</span>
         <Leds game={s.game} />
-        <button className="iconbtn" onClick={() => setHelp(true)} aria-label="How to play">?</button>
-        <button className="iconbtn" onClick={() => go({ kind: 'archive' })} aria-label="Archive">Past</button>
-        <button className="iconbtn" onClick={() => go({ kind: 'board' })} aria-label="Leaderboard">Top</button>
       </header>
       {!s.isToday && (
-        <div className="mono muted" style={{ padding: '8px 16px 0' }}>
-          Archive · {prettyDate(s.date)} · doesn&apos;t count toward your streak ·{' '}
-          <button className="textlink" onClick={() => go({ kind: 'play' })}>today&apos;s map</button>
+        <div className="banner">
+          <span>Archive map from {prettyDate(s.date)}. It doesn&apos;t count toward your streak.</span>
+          <button className="textlink" onClick={() => go({ kind: 'play' })}>Go to today&apos;s map</button>
         </div>
       )}
 
@@ -141,12 +165,11 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
             {busy ? <span className="blink">Reading…</span> : picked === null ? 'Pick an answer' : `Lock in ${KEYS[picked]}`}
           </button>
           <p className="mono muted" style={{ textAlign: 'center', margin: '0 16px 24px' }}>
-            {s.stats.players.toLocaleString()} solved or failed so far · tap a country to read it
+            {s.stats.players.toLocaleString()} people have played {s.isToday ? "today's map" : 'this map'}
           </p>
         </>
       )}
       {done && <RevealPanel s={s} go={go} toast={toast} />}
-      {help && <HowTo close={closeHelp} />}
     </>
   );
 }
@@ -173,7 +196,7 @@ function Readout({ s, probe, ramp }: { s: PuzzleState; probe: string | null; ram
       <span>more</span>
     </span>
   );
-  if (!probe) return <div className="readout mono muted"><span>Tap a country to read it</span>{scale}</div>;
+  if (!probe) return <div className="readout mono muted"><span>Tap a country</span>{scale}</div>;
   const band = s.bands[probe];
   const value = s.reveal?.values[probe];
   return (
@@ -196,14 +219,14 @@ function HintRail({ s }: { s: PuzzleState }) {
   return (
     <div className="hints">
       <div className={`hint ${h.extremes ? '' : 'is-locked'}`}>
-        <div className="hint__title mono"><span>Hint 1 · Top &amp; bottom</span><span>{h.extremes ? '' : '⌧'}</span></div>
+        <div className="hint__title mono"><span>Hint 1</span><span>{h.extremes ? '' : '⌧'}</span></div>
         {h.extremes ? (
           <div className="hint__body">▲ Most: {nameOf(h.extremes.top[0])}<br />▼ Least: {nameOf(h.extremes.bottom[0])}</div>
-        ) : <div className="hint__body muted">Unlocks after 1 miss</div>}
+        ) : <div className="hint__body muted">Top &amp; bottom country. Unlocks after 1 miss</div>}
       </div>
       <div className={`hint ${h.unit ? '' : 'is-locked'}`}>
-        <div className="hint__title mono"><span>Hint 2 · Unit</span><span>{h.unit ? '' : '⌧'}</span></div>
-        <div className={`hint__body ${h.unit ? '' : 'muted'}`}>{h.unit ?? 'Unlocks after 2 misses'}</div>
+        <div className="hint__title mono"><span>Hint 2</span><span>{h.unit ? '' : '⌧'}</span></div>
+        <div className={`hint__body ${h.unit ? '' : 'muted'}`}>{h.unit ? `Unit: ${h.unit}` : 'The unit. Unlocks after 2 misses'}</div>
       </div>
     </div>
   );
@@ -294,7 +317,11 @@ function RevealPanel({ s, go, toast }: { s: PuzzleState; go: (v: View) => void; 
         <div className="mono eyebrow">Your result</div>
         <div className="resulttext">{text}</div>
         <div className="pills">
-          <button className="pill" onClick={share} disabled={shared || !s.me.loggedIn}>{shared ? 'Posted ✓' : 'Post to comments'}</button>
+          {s.me.loggedIn ? (
+            <button className="pill" onClick={share} disabled={shared}>{shared ? 'Posted ✓' : 'Post to comments'}</button>
+          ) : (
+            <button className="pill" onClick={() => safe(showLoginPrompt)}>Log in to post</button>
+          )}
           <button className="pill pill--ghost" onClick={copy}>Share</button>
         </div>
         {s.me.loggedIn && !shared && <div className="mono muted" style={{ marginTop: 8 }}>Posts this card as a comment from u/{s.me.username}</div>}
@@ -317,7 +344,7 @@ function RevealPanel({ s, go, toast }: { s: PuzzleState; go: (v: View) => void; 
         <Countdown at={s.nextAt} />
       </div>
       <div className="linkrow">
-        <button className="textlink" onClick={() => go({ kind: 'archive' })}>Play the archive</button>
+        <button className="textlink" onClick={() => go({ kind: 'archive' })}>Play past maps</button>
         <button className="textlink" onClick={() => go({ kind: 'board' })}>Leaderboard</button>
         <button className="textlink" onClick={() => suggest(toast)}>Suggest a map</button>
       </div>
@@ -386,17 +413,17 @@ function Archive({ go }: { go: (v: View) => void }) {
   }, []);
   return (
     <>
-      <Strip go={go} active="archive" />
+      <Header />
       <section className="panel">
-        <div className="mono eyebrow">Every map so far</div>
-        <h2>The archive</h2>
+        <div className="mono eyebrow">Every map so far · tap one to play it</div>
+        <h2>Archive</h2>
         {!a ? <Loading /> : (
           <div className="tiles">
             {a.items.map((it, i) => (
               <button key={it.n} className={`tile ${it.result?.done ? 'is-done' : ''} ${i === 0 ? 'is-today' : ''}`} onClick={() => go({ kind: 'play', n: it.n })}>
                 <span className="mono">N°{pad3(it.n)}</span>
-                <span className="tile__ans">{it.answer ?? (it.result ? 'In progress' : '???')}</span>
-                <span className="mono" style={{ opacity: .7 }}>
+                <span className="tile__ans">{it.answer ?? (it.result ? 'In progress' : 'Not played yet')}</span>
+                <span className="mono tile__meta">
                   {it.result?.done ? (it.result.solved ? `${it.result.guesses.length}/${MAX_TRIES}` : `X/${MAX_TRIES}`) : prettyDate(it.date)}
                 </span>
               </button>
@@ -408,14 +435,14 @@ function Archive({ go }: { go: (v: View) => void }) {
   );
 }
 
-function Board({ go }: { go: (v: View) => void }) {
+function Board() {
   const [b, setB] = useState<LeaderboardResponse | null>(null);
   useEffect(() => {
     api<LeaderboardResponse>('/leaderboard').then(setB, () => undefined);
   }, []);
   return (
     <>
-      <Strip go={go} active="board" />
+      <Header />
       <section className="panel">
         <div className="mono eyebrow">N°{b ? pad3(b.n) : '…'} · fewest tries, then fastest</div>
         <h2>Today&apos;s sharpest readers</h2>
@@ -451,20 +478,16 @@ function Board({ go }: { go: (v: View) => void }) {
 
 const fmtSecs = (s: number) => (s >= 3600 ? '1h+' : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`);
 
-function Strip({ go, active }: { go: (v: View) => void; active: 'archive' | 'board' }) {
+function Header() {
   return (
     <header className="strip">
-      <button className="wordmark" onClick={() => go({ kind: 'play' })}>GRATICULE</button>
-      <span className="spacer" />
-      <button className="iconbtn" onClick={() => go({ kind: 'play' })}>Today</button>
-      <button className={`iconbtn ${active === 'archive' ? 'is-on' : ''}`} onClick={() => go({ kind: 'archive' })}>Past</button>
-      <button className={`iconbtn ${active === 'board' ? 'is-on' : ''}`} onClick={() => go({ kind: 'board' })}>Top</button>
+      <span className="wordmark">GRATICULE</span>
     </header>
   );
 }
 
 function Loading() {
-  return <div className="loading mono muted"><span className="blink">Calibrating…</span></div>;
+  return <div className="loading mono muted"><span className="blink">Loading the map…</span></div>;
 }
 
 function Message({ text, go }: { text: string; go: (v: View) => void }) {

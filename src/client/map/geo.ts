@@ -59,6 +59,7 @@ export function colorFor(ramp: string[], band: number, count: number): string {
 }
 
 export function formatValue(v: number): string {
+  if (v === 0) return '0';
   const a = Math.abs(v);
   const d = a >= 100 ? 0 : a >= 1 ? 1 : 2;
   return v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });

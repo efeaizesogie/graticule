@@ -23,7 +23,7 @@ function Splash() {
   };
 
   if (err) return <div className="splash"><div className="panel">{err}</div></div>;
-  if (!s) return <div className="splash"><div className="loading mono muted"><span className="blink">Calibrating…</span></div></div>;
+  if (!s) return <div className="splash"><div className="loading mono muted"><span className="blink">Loading the map…</span></div></div>;
 
   const g = s.game;
   return (
