@@ -91,11 +91,12 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--signal
   display: flex; justify-content: space-between; gap: 8px; align-items: center;
 }
 .readout b { font-weight: 500; }
-.ramp { display: flex; height: 8px; width: 112px; }
+.scale { display: flex; align-items: center; gap: 6px; font-size: 10px; flex: none; }
+.ramp { display: flex; height: 8px; width: 84px; }
 .ramp span { flex: 1; }
 
 /* ---------- hints ---------- */
-.hints { display: grid; grid-template-columns: repeat(3, 1fr); margin: 15px 16px 0; border: 1px solid var(--ink); }
+.hints { display: grid; grid-template-columns: repeat(2, 1fr); margin: 15px 16px 0; border: 1px solid var(--ink); }
 .hint { padding: 8px 10px; min-height: 64px; border-left: 1px solid var(--ink); perspective: 400px; }
 .hint:first-child { border-left: 0; }
 .hint__title { display: flex; justify-content: space-between; }
@@ -197,3 +198,12 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--signal
   *, *::before, *::after { animation: none !important; }
   .map__countries path, .map__dots circle { transition: fill 300ms linear !important; transition-delay: 0ms !important; }
 }
+
+/* ---------- how to play ---------- */
+.howto { position: fixed; inset: 0; z-index: 8; display: grid; place-items: end center; background: rgba(15,14,18,.45); animation: fade 200ms ease-out both; }
+.howto__card { width: 100%; max-width: 560px; background: var(--mist); border-top: 1px solid var(--ink); padding: 18px 18px 22px; animation: rise 260ms ease-out both; }
+.howto__card h2 { font: 400 28px/1.1 var(--serif); margin: 6px 0 12px; }
+.howto__card ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 15px; line-height: 1.35; }
+.howto__card b { font-weight: 500; }
+.howto__card p { margin: 12px 0 0; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }

@@ -16,7 +16,17 @@ import { DISPLAY, RAMPS, colorFor, formatValue, nameOf } from './map/geo';
 import { ApiError, api, pad3, prettyDate, useCountdown, useToast } from './lib';
 
 type View = { kind: 'play'; n?: number } | { kind: 'archive' } | { kind: 'board' };
-const KEYS = 'ABCDEF';
+const KEYS = 'ABCD';
+const LEVELS = ['Very low', 'Low', 'Below average', 'Middle', 'Above average', 'High', 'Very high'];
+const levelOf = (band: number, count: number) => LEVELS[count <= 1 ? 6 : Math.round((band * 6) / (count - 1))]!;
+const HELP_KEY = 'graticule.help.v1';
+const helpSeen = () => {
+  try {
+    return localStorage.getItem(HELP_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
 
 function App() {
   const [view, setView] = useState<View>({ kind: 'play' });
@@ -39,6 +49,15 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
   const [picked, setPicked] = useState<number | null>(null);
   const [probe, setProbe] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [help, setHelp] = useState(() => !helpSeen());
+  const closeHelp = () => {
+    setHelp(false);
+    try {
+      localStorage.setItem(HELP_KEY, '1');
+    } catch {
+      /* private mode */
+    }
+  };
 
   useEffect(() => {
     api<PuzzleState>(`/state${n ? `?n=${n}` : ''}`).then(setS, (e: Error) => setErr(e.message));
@@ -58,7 +77,7 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
       const next = await api<PuzzleState>('/guess', { n: s.n, choice: picked });
       setS(next);
       setPicked(null);
-      if (!next.game.done) toast(`Not that. Hint ${next.game.guesses.length} unlocked`);
+      if (!next.game.done) toast(next.game.guesses.length === 1 ? 'Not that. Hint: top & bottom countries' : 'Not that. Hint: the unit');
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) safe(showLoginPrompt);
       else toast((e as Error).message);
@@ -81,6 +100,7 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
         <span className="mono muted">N°{pad3(s.n)}</span>
         <span className="spacer" />
         <Leds game={s.game} />
+        <button className="iconbtn" onClick={() => setHelp(true)} aria-label="How to play">?</button>
         <button className="iconbtn" onClick={() => go({ kind: 'archive' })} aria-label="Archive">Past</button>
         <button className="iconbtn" onClick={() => go({ kind: 'board' })} aria-label="Leaderboard">Top</button>
       </header>
@@ -93,7 +113,7 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
 
       <div className="display">
         <span className="reg" />
-        <span className="display__label mono">{done ? `${s.reveal?.year ?? ''} · ${s.reveal?.unit ?? ''}` : 'Signal unknown'}</span>
+        <span className="display__label mono">{done ? `${s.reveal?.year ?? ''} · ${s.reveal?.unit ?? ''}` : 'Mystery map · darker = more'}</span>
         <MapView bands={s.bands} bandCount={s.bandCount} ramp={ramp} origin={s.reveal?.top[0]?.[0]} selected={probe} marked={marked} onPick={setProbe} />
       </div>
       <Readout s={s} probe={probe} ramp={ramp} />
@@ -101,7 +121,7 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
       {!done && (
         <>
           <HintRail s={s} />
-          <p className="q">What does this map measure?</p>
+          <p className="q">What does this map show?</p>
           <div className="choices" role="listbox">
             {s.choices.map((c, i) => (
               <button
@@ -126,6 +146,7 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
         </>
       )}
       {done && <RevealPanel s={s} go={go} toast={toast} />}
+      {help && <HowTo close={closeHelp} />}
     </>
   );
 }
@@ -144,8 +165,12 @@ function Leds({ game }: { game: PuzzleState['game'] }) {
 
 function Readout({ s, probe, ramp }: { s: PuzzleState; probe: string | null; ramp: string[] | null }) {
   const scale = (
-    <span className="ramp" aria-hidden>
-      {Array.from({ length: s.bandCount }, (_, b) => <span key={b} style={{ background: colorFor(ramp ?? DISPLAY, b, s.bandCount) }} />)}
+    <span className="scale" aria-hidden>
+      <span>less</span>
+      <span className="ramp">
+        {Array.from({ length: s.bandCount }, (_, b) => <span key={b} style={{ background: colorFor(ramp ?? DISPLAY, b, s.bandCount) }} />)}
+      </span>
+      <span>more</span>
     </span>
   );
   if (!probe) return <div className="readout mono muted"><span>Tap a country to read it</span>{scale}</div>;
@@ -159,7 +184,7 @@ function Readout({ s, probe, ramp }: { s: PuzzleState; probe: string | null; ram
           ? '· no data'
           : value !== undefined
             ? `· ${formatValue(value)} ${s.reveal?.unit ?? ''}`
-            : `· band ${band + 1} of ${s.bandCount}`}
+            : `· ${levelOf(band, s.bandCount)}`}
       </span>
       {scale}
     </div>
@@ -170,35 +195,36 @@ function HintRail({ s }: { s: PuzzleState }) {
   const h = s.hints;
   return (
     <div className="hints">
-      <div className={`hint ${h.legend ? '' : 'is-locked'}`}>
-        <div className="hint__title mono"><span>Legend</span><span>{h.legend ? '01' : '⌧'}</span></div>
-        {h.legend ? (
-          <div className="hint__body legend">
-            {legendRows(h.legend).map((r, b) => (
-              <span key={b}><i style={{ background: colorFor(DISPLAY, b, s.bandCount) }} />{r}</span>
-            )).filter((_, b) => b === 0 || b === s.bandCount - 1 || b === Math.floor(s.bandCount / 2))}
-          </div>
-        ) : <div className="hint__body muted">After 1 miss</div>}
-      </div>
       <div className={`hint ${h.extremes ? '' : 'is-locked'}`}>
-        <div className="hint__title mono"><span>Extremes</span><span>{h.extremes ? '02' : '⌧'}</span></div>
+        <div className="hint__title mono"><span>Hint 1 · Top &amp; bottom</span><span>{h.extremes ? '' : '⌧'}</span></div>
         {h.extremes ? (
-          <div className="hint__body">▲ {nameOf(h.extremes.top[0])}<br />▼ {nameOf(h.extremes.bottom[0])}</div>
-        ) : <div className="hint__body muted">After 2 misses</div>}
+          <div className="hint__body">▲ Most: {nameOf(h.extremes.top[0])}<br />▼ Least: {nameOf(h.extremes.bottom[0])}</div>
+        ) : <div className="hint__body muted">Unlocks after 1 miss</div>}
       </div>
       <div className={`hint ${h.unit ? '' : 'is-locked'}`}>
-        <div className="hint__title mono"><span>Unit</span><span>{h.unit ? '03' : '⌧'}</span></div>
-        <div className={`hint__body ${h.unit ? '' : 'muted'}`}>{h.unit ?? 'After 3 misses'}</div>
+        <div className="hint__title mono"><span>Hint 2 · Unit</span><span>{h.unit ? '' : '⌧'}</span></div>
+        <div className={`hint__body ${h.unit ? '' : 'muted'}`}>{h.unit ?? 'Unlocks after 2 misses'}</div>
       </div>
     </div>
   );
 }
 
-function legendRows(t: number[]): string[] {
-  const rows = [`under ${formatValue(t[0]!)}`];
-  for (let i = 1; i < t.length; i++) rows.push(`${formatValue(t[i - 1]!)} – ${formatValue(t[i]!)}`);
-  rows.push(`${formatValue(t[t.length - 1]!)}+`);
-  return rows;
+function HowTo({ close }: { close: () => void }) {
+  return (
+    <div className="howto" role="dialog" aria-modal="true" aria-labelledby="howto-title" onClick={close}>
+      <div className="howto__card" onClick={(e) => e.stopPropagation()}>
+        <div className="mono muted">How to play</div>
+        <h2 id="howto-title">Guess what the map shows</h2>
+        <ol>
+          <li><b>Every country is shaded by one real fact.</b> Darker means more.</li>
+          <li><b>Tap countries</b> to check how high or low they are.</li>
+          <li><b>Pick 1 of 4 answers.</b> You get 3 tries. A miss unlocks a hint.</li>
+        </ol>
+        <p className="muted">A new map every day. Solve it to grow your streak.</p>
+        <button className="bar" style={{ width: '100%', margin: '14px 0 0' }} onClick={close}>Got it</button>
+      </div>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------- reveal
@@ -209,7 +235,7 @@ function RevealPanel({ s, go, toast }: { s: PuzzleState; go: (v: View) => void; 
   const text = resultText(s.n, s.game, s.me.streak);
   const [shared, setShared] = useState(false);
   const total = s.stats.dist.reduce((a, b) => a + b, 0) || 1;
-  const myRow = s.game.solved ? tries - 1 : 4;
+  const myRow = s.game.solved ? tries - 1 : MAX_TRIES;
   const isMe = useMemo(() => myRow, [myRow]);
 
   const share = async () => {
@@ -274,7 +300,7 @@ function RevealPanel({ s, go, toast }: { s: PuzzleState; go: (v: View) => void; 
         {s.me.loggedIn && !shared && <div className="mono muted" style={{ marginTop: 8 }}>Posts this card as a comment from u/{s.me.username}</div>}
         <div className="mono eyebrow" style={{ marginTop: 18 }}>How everyone did · {s.stats.players.toLocaleString()} players</div>
         <div className="dist">
-          {['1', '2', '3', '4', '✕'].map((label, i) => (
+          {['1', '2', '3', '✕'].map((label, i) => (
             <div key={label} className={`dist__row ${i === isMe ? 'is-me' : ''}`}>
               <span>{label}</span>
               <span className="dist__bar"><span style={{ width: `${(100 * s.stats.dist[i]!) / total}%` }} /></span>

@@ -1,5 +1,5 @@
-export const MAX_TRIES = 4;
-export const CHOICES = 6;
+export const MAX_TRIES = 3;
+export const CHOICES = 4;
 
 export type Category = 'people' | 'planet' | 'money' | 'health' | 'tech' | 'diverging';
 export const THEMES: { id: Exclude<Category, 'diverging'>; label: string }[] = [
@@ -12,11 +12,9 @@ export const THEMES: { id: Exclude<Category, 'diverging'>; label: string }[] = [
 
 /** Hints unlock one per wrong guess, in this order. */
 export type Hints = {
-  /** band edges (no unit). Unlocked after 1 wrong guess. */
-  legend?: number[];
-  /** highest and lowest country. After 2 wrong. */
+  /** highest and lowest country. After 1 wrong guess. */
   extremes?: { top: [string, number]; bottom: [string, number] };
-  /** unit of measure. After 3 wrong. */
+  /** unit of measure. After 2 wrong. */
   unit?: string;
 };
 
@@ -37,8 +35,8 @@ export type Reveal = {
 
 export type Stats = {
   players: number;
-  /** solved in 1,2,3,4 tries, then failed */
-  dist: [number, number, number, number, number];
+  /** solved in 1,2,3 tries, then failed */
+  dist: [number, number, number, number];
 };
 
 export type MyGame = {

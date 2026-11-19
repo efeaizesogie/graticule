@@ -6,26 +6,28 @@ Graticule is a daily game for Reddit, built on Devvit Web. Each day a new post s
 
 ## How to play
 
-1. Open today's post and tap **Read the map**.
-2. Study the map. Tap any country to see which band it falls in (band 1 = lowest, band 7 = highest).
-3. Pick one of six answers and **Lock in**. You have **4 tries**.
-4. Each wrong guess unlocks a hint, in this order:
-   - **Legend**: the number ranges behind the shades (still without a unit)
-   - **Extremes**: the highest and lowest country, ringed on the map
-   - **Unit**: what the numbers are measured in
-5. Solve it or run out of tries and the map blooms into colour. You get:
+Built so any random redditor can get it: everyday topics (internet use, how long people live, how rich, how crowded, forests, air pollution…), answers in plain English, and only four choices.
+
+1. Open today's post and tap **Play today's map**. A three-line *How to play* card appears the first time (reopen it any time with **?**).
+2. Every country is shaded by one real fact. **Darker = more.**
+3. Tap any country to check it: *Very low* … *Middle* … *Very high*.
+4. Pick 1 of **4 answers** and **Lock in**. You have **3 tries**.
+5. A wrong guess unlocks a hint:
+   - **Hint 1, top & bottom**: the country with the most and the least, ringed on the map
+   - **Hint 2, unit**: what the numbers are measured in
+6. Solve it or run out of tries and the map blooms into colour. You get:
    - the answer, the year and the unit
    - one **surprising fact** taken from the data
    - the top 3 and bottom 3 countries with real values
-   - the source (World Bank WDI indicator name, with a link)
-   - how everyone else did (1 / 2 / 3 / 4 / ✕)
-6. **Share** a spoiler-free result card, or post it to the comments with **Post to comments** (it posts from your own account, only when you tap it):
+   - the source (World Bank indicator name, with a link)
+   - how everyone else did (1 / 2 / 3 / ✕)
+7. **Share** a spoiler-free result card, or post it to the comments with **Post to comments** (it posts from your own account, only when you tap it):
    ```
-   GRATICULE N°031 — 2/4
-   ✕ ● · ·   ▲ 5-day streak
+   GRATICULE N°031 — 2/3
+   ✕ ● ·   ▲ 5-day streak
    ```
-7. **Vote on tomorrow's theme** (People, Planet, Money, Health, Tech). The winning theme picks the next map from the bank.
-8. A new map drops every day at **00:00 UTC**.
+8. **Vote on tomorrow's theme** (People, Planet, Money, Health, Tech). The winning theme picks the next map from the bank.
+9. A new map drops every day at **00:00 UTC**.
 
 ### Streaks, leaderboard, archive
 - **Streak**: solve today's map on consecutive days. Streaks of 2 or more show as user flair (`▲ 5-day streak`) in the subreddit.
@@ -37,7 +39,7 @@ Graticule is a daily game for Reddit, built on Devvit Web. Each day a new post s
 Every daily post opens with a stickied **theories thread**. Players argue about what the colours mean (answers go in `>!spoiler tags!<`).
 
 ## The data
-31 curated maps, all from the **World Bank World Development Indicators** API (CC BY 4.0), using the latest year each indicator has. Each map's reveal names the official indicator and links to its data page. Country shapes come from **Natural Earth** 1:110m (public domain) via `world-atlas`. Countries too small to see at that scale are drawn as dots.
+23 curated, everyday-topic maps, all from the **World Bank World Development Indicators** API (CC BY 4.0), using the latest year each indicator has. Each map's reveal names the official indicator and links to its data page. Country shapes come from **Natural Earth** 1:110m (public domain) via `world-atlas`. Countries too small to see at that scale are drawn as dots.
 
 Facts are written by hand, but every number in them is filled in from the fetched data at build time (`{QAT}` becomes Qatar's value). The build fails if a fact cites a country with no data.
 

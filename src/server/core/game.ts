@@ -91,7 +91,7 @@ export async function openNextDay(): Promise<DayInfo> {
       text: [
         `# Graticule N°${num}`,
         "Today's mystery world map has no title and no legend. Every country is shaded by one real statistic. Work out what it measures.",
-        'Pick from six options. You get four tries, and every wrong guess unlocks a hint: first the legend, then the extremes, then the unit.',
+        'Pick from four answers. You get three tries. A wrong guess reveals the highest and lowest country, and a second one reveals the unit.',
         'The answer, its source and one surprising fact appear when you finish. A new map drops every day at 00:00 UTC.',
       ].join('\n\n'),
     },
@@ -106,7 +106,7 @@ export async function openNextDay(): Promise<DayInfo> {
     const c = await reddit.submitComment({
       id: post.id,
       text: [
-        `**Theories thread for N°${num}.** What do you think the colours show, and why?`,
+        `**Theories thread for N°${num}.** Darker = more. What do you think the colours show, and why?`,
         'Please wrap answers in spoiler tags like `>!this!<` so you don\'t ruin it for anyone. The real answer and its source appear in the post once you finish.',
         "*Want to steer tomorrow's map? Vote for a theme after you play.*",
       ].join('\n\n'),
@@ -151,14 +151,13 @@ async function saveGame(n: number, userId: string, g: GameRec) {
 export async function stats(n: number): Promise<Stats> {
   const h = await redis.hGetAll(K.stats(n));
   const v = (k: string) => Number(h[k] ?? 0);
-  return { players: v('p'), dist: [v('d1'), v('d2'), v('d3'), v('d4'), v('dx')] };
+  return { players: v('p'), dist: [v('d1'), v('d2'), v('d3'), v('dx')] };
 }
 
 function hintsFor(d: Dataset, wrong: number): Hints {
   const h: Hints = {};
-  if (wrong >= 1) h.legend = d.thresholds;
-  if (wrong >= 2) h.extremes = { top: d.top[0]!, bottom: d.bottom[0]! };
-  if (wrong >= 3) h.unit = d.unit;
+  if (wrong >= 1) h.extremes = { top: d.top[0]!, bottom: d.bottom[0]! };
+  if (wrong >= 2) h.unit = d.unit;
   return h;
 }
 
@@ -188,7 +187,7 @@ export async function puzzleState(n: number): Promise<PuzzleState | undefined> {
   const state: PuzzleState = {
     type: 'state', n, date: info.date, isToday: n === today,
     bands: bandsFor(d), bandCount: d.thresholds.length + 1,
-    choices: choicesFor(d, n), game, hints: game.done ? hintsFor(d, 3) : hintsFor(d, wrong),
+    choices: choicesFor(d, n), game, hints: hintsFor(d, game.done ? MAX_TRIES : wrong),
     stats: await stats(n), me: await me(today), nextAt: nextDropAt(),
   };
   if (game.done) state.reveal = revealFor(d);

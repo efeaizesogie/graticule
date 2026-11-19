@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('../dist/client/', import.meta.url));
 const bank = JSON.parse(readFileSync(new URL('../src/server/bank.json', import.meta.url), 'utf8'));
 const PORT = Number(process.argv[2] ?? 5178);
-const MAX = 4;
+const MAX = 3;
 let today = 6;
 let games = {};
 const votes = { people: 4, planet: 7, money: 2, health: 3, tech: 5 };
@@ -31,14 +31,13 @@ function state(n) {
   const d = bank[(n - 1) % bank.length];
   const g = games[n] ?? { guesses: [], solved: false, done: false };
   const wrong = g.guesses.length - (g.solved ? 1 : 0);
-  const w = g.done ? 3 : wrong;
+  const w = g.done ? MAX : wrong;
   const hints = {};
-  if (w >= 1) hints.legend = d.thresholds;
-  if (w >= 2) hints.extremes = { top: d.top[0], bottom: d.bottom[0] };
-  if (w >= 3) hints.unit = d.unit;
+  if (w >= 1) hints.extremes = { top: d.top[0], bottom: d.bottom[0] };
+  if (w >= 2) hints.unit = d.unit;
   const s = {
     type: 'state', n, date: date(n), isToday: n === today, bands: bandsFor(d), bandCount: d.thresholds.length + 1,
-    choices: choicesFor(d, n), game: g, hints, stats: { players: 1284, dist: [212, 401, 288, 167, 216] }, me: me(), nextAt: nextAt(),
+    choices: choicesFor(d, n), game: g, hints, stats: { players: 1284, dist: [512, 401, 188, 116] }, me: me(), nextAt: nextAt(),
   };
   if (g.done) s.reveal = { answer: d.answer, indicator: d.indicatorName, unit: d.unit, year: d.year, fact: d.fact, category: d.cat, source: d.source, top: d.top, bottom: d.bottom, values: d.values };
   return s;

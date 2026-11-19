@@ -36,14 +36,14 @@ function Splash() {
       </header>
       <div className="display" onClick={open}>
         <span className="reg" />
-        <span className="display__label mono">Signal unknown</span>
+        <span className="display__label mono">Mystery map</span>
         <MapView bands={s.bands} bandCount={s.bandCount} ramp={null} compact />
       </div>
       {g?.done ? <Done s={s} open={open} /> : (
         <>
-          <h1>What does this map measure?</h1>
-          <p className="sub mono muted">No title. No legend. {MAX_TRIES} tries · {s.players.toLocaleString()} played</p>
-          <button className="bar" onClick={open}>{g ? `Resume · try ${g.guesses.length + 1} of ${MAX_TRIES}` : 'Read the map'}</button>
+          <h1>What does this map show?</h1>
+          <p className="sub mono muted">Darker = more · {MAX_TRIES} tries · {s.players.toLocaleString()} played</p>
+          <button className="bar" onClick={open}>{g ? `Resume · try ${g.guesses.length + 1} of ${MAX_TRIES}` : 'Play today’s map'}</button>
         </>
       )}
     </div>

@@ -61,15 +61,15 @@ function quantileThresholds(vals, k = 7) {
 }
 
 // Daily order: easy openers, then mix categories so no two days feel alike.
-const ORDER = ['density', 'male-share', 'internet', 'forest', 'fertility', 'fuel-exports', 'life-exp', 'migrants', 'renewables',
-  'over-65', 'military', 'remittances', 'urban', 'co2', 'women-work', 'arable', 'mobile', 'pm25', 'gdp-pc', 'under-15', 'water-stress',
-  'electricity-access', 'tourism', 'pop-growth', 'health-spend', 'agri-gdp', 'unemployment', 'infant-mortality', 'clean-water',
-  'teen-births', 'aid'];
+const ORDER = ['internet', 'life-exp', 'forest', 'density', 'gdp-pc', 'male-share', 'fertility', 'urban', 'co2', 'over-65',
+  'electricity-access', 'migrants', 'tourism', 'under-15', 'pm25', 'mobile', 'fuel-exports', 'women-work', 'clean-water', 'military',
+  'pop-growth', 'arable', 'unemployment'];
 const byId = Object.fromEntries(INDICATORS.map((i) => [i.id, i]));
 if (ORDER.length !== INDICATORS.length || ORDER.some((id) => !byId[id])) throw new Error('ORDER out of sync with INDICATORS');
 
 const bank = ORDER.map((id, idx) => {
   const ind = byId[id];
+  if (ind.decoys.length !== 3 || new Set([ind.answer, ...ind.decoys]).size !== 4) throw new Error(`${id}: need 3 distinct decoys`);
   const r = raw(`${id}.json`);
   const values = {};
   for (const [k, v] of Object.entries(r.values)) {
