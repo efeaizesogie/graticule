@@ -91,7 +91,7 @@ export async function openNextDay(): Promise<DayInfo> {
       text: [
         `# Graticule N°${num}`,
         "Today's mystery world map has no title and no legend. Every country is shaded by one real statistic. Work out what it measures.",
-        'Pick from four answers. You get three tries. A wrong guess reveals the highest and lowest country, and a second one reveals the unit.',
+        'You see which countries have the most and the least. Pick from four answers, with three tries. A wrong guess reveals the unit, and a second one gives an everyday nudge.',
         'The answer, its source and one surprising fact appear when you finish. A new map drops every day at 00:00 UTC.',
       ].join('\n\n'),
     },
@@ -155,9 +155,9 @@ export async function stats(n: number): Promise<Stats> {
 }
 
 function hintsFor(d: Dataset, wrong: number): Hints {
-  const h: Hints = {};
-  if (wrong >= 1) h.extremes = { top: d.top[0]!, bottom: d.bottom[0]! };
-  if (wrong >= 2) h.unit = d.unit;
+  const h: Hints = { most: d.clueTop, least: d.clueBottom };
+  if (wrong >= 1) h.unit = d.unit;
+  if (wrong >= 2) h.nudge = d.nudge;
   return h;
 }
 

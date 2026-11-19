@@ -47,3 +47,30 @@ export const NAMES = {
   ARE: 'UAE', CAF: 'Central African Rep.', DOM: 'Dominican Rep.', BIH: 'Bosnia & Herzegovina', TTO: 'Trinidad & Tobago', ATG: 'Antigua & Barbuda',
   XKX: 'Kosovo',
 };
+
+// The last-chance hint (after 2 misses): an everyday nudge, no numbers.
+export const NUDGES = {
+  internet: 'Think Wi-Fi, smartphones and data plans.',
+  'life-exp': 'Think doctors, clean water and growing old.',
+  forest: 'Think trees: the Amazon and the Congo basin.',
+  density: 'Think elbow room: small packed places versus huge empty ones.',
+  'gdp-pc': 'Think wages and what people can afford.',
+  'male-share': 'Think of places where lots of men move for work.',
+  fertility: 'Think family size.',
+  urban: 'Think skylines versus villages.',
+  co2: 'Think cars, air conditioning and power plants.',
+  'over-65': 'Think grandparents.',
+  'electricity-access': 'Think flipping a light switch at night.',
+  migrants: 'Think of where people move to for work.',
+  tourism: 'Think holidays, beaches and cruise ships.',
+  'under-15': 'Think school-age kids.',
+  pm25: 'Think smog and dust in the air you breathe.',
+  mobile: 'Think SIM cards.',
+  'fuel-exports': 'Think oil wells and pipelines.',
+  'women-work': 'Think mothers, sisters and daughters going to work.',
+  'clean-water': 'Think turning on a tap at home.',
+  military: 'Think soldiers, tanks and fighter jets.',
+  'pop-growth': 'Think how fast a country is adding people.',
+  arable: 'Think fields of crops.',
+  unemployment: 'Think job hunting.',
+};

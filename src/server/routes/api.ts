@@ -40,7 +40,7 @@ api.get('/splash', async (c) => {
   const today = await currentDay();
   const body: SplashState = {
     type: 'splash', n, date: info.date, bands: bandsFor(info.dataset), bandCount: info.dataset.thresholds.length + 1,
-    players: (await stats(n)).players, me: await me(today),
+    players: (await stats(n)).players, most: info.dataset.clueTop, me: await me(today),
     game: state && state.game.guesses.length ? state.game : null, nextAt: nextDropAt(),
   };
   return c.json(body);

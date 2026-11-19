@@ -123,6 +123,16 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--signal
   border-bottom: 1px solid var(--rule); font: 400 16px/1.3 var(--sans); min-height: 48px; transition: background 120ms;
 }
 .choice__key { font: 500 12px/1 var(--mono); width: 16px; flex: none; }
+.choice__icon { width: 24px; flex: none; text-align: center; font-size: 18px; line-height: 1; }
+
+/* ---------- clue (shown from the start) ---------- */
+.clue { margin: 15px 16px 0; padding: 10px 12px; border: 1px solid var(--ink); background: #fff; display: grid; gap: 8px; }
+.clue__row { display: grid; grid-template-columns: 74px 1fr; gap: 8px; align-items: baseline; }
+.clue__label { display: inline-flex; align-items: center; gap: 6px; }
+.clue__label i { width: 12px; height: 12px; border: 1px solid var(--ink); display: inline-block; }
+.clue__names { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.clue__name { font-size: 15px; font-weight: 500; padding: 4px 8px; min-height: 32px; border: 1px solid var(--rule); background: var(--mist); }
+.clue__name:hover { border-color: var(--ink); }
 .choice:hover { background: rgba(15,14,18,.03); }
 .choice.is-picked { background: var(--ink); color: var(--mist); }
 .choice.is-picked .choice__key { color: var(--signal); }

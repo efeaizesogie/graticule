@@ -10,12 +10,15 @@ export const THEMES: { id: Exclude<Category, 'diverging'>; label: string }[] = [
   { id: 'tech', label: 'Tech' },
 ];
 
-/** Hints unlock one per wrong guess, in this order. */
+/** Clues: the most/least countries are always shown; the rest unlock one per wrong guess. */
 export type Hints = {
-  /** highest and lowest country. After 1 wrong guess. */
-  extremes?: { top: [string, number]; bottom: [string, number] };
-  /** unit of measure. After 2 wrong. */
+  /** ISO3 of the 3 highest and 3 lowest countries (big enough to see). Shown from the start. */
+  most: string[];
+  least: string[];
+  /** unit of measure. After 1 wrong guess. */
   unit?: string;
+  /** an everyday nudge, no numbers. After 2 wrong guesses. */
+  nudge?: string;
 };
 
 export type Reveal = {
@@ -79,6 +82,8 @@ export type SplashState = {
   bands: Record<string, number>;
   bandCount: number;
   players: number;
+  /** the 3 countries with the most, as a hook in the feed */
+  most: string[];
   me: Me;
   game: MyGame | null;
   nextAt: number;

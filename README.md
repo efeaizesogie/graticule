@@ -10,11 +10,11 @@ Built so any random redditor can get it: everyday topics (internet use, how long
 
 1. Open today's post and tap **Play today's map**. A three-line *How to play* card appears the first time (reopen it any time with **?**).
 2. Every country is shaded by one real fact. **Darker = more.**
-3. Tap any country to check it: *Very low* … *Middle* … *Very high*.
-4. Pick 1 of **4 answers** and **Lock in**. You have **3 tries**.
+3. **The clue** is there from the start: the three countries with the *most* and the three with the *least* (tap a name to find it on the map). What do they have in common?
+4. Tap any country to check it: *Very low* … *Middle* … *Very high*. Pick 1 of **4 answers** (each has an icon) and **Lock in**. You have **3 tries**.
 5. A wrong guess unlocks a hint:
-   - **Hint 1, top & bottom**: the country with the most and the least, ringed on the map
-   - **Hint 2, unit**: what the numbers are measured in
+   - **Hint 1, the unit**: what the numbers are measured in
+   - **Hint 2, an everyday nudge**: e.g. *"Think grandparents."*
 6. Solve it or run out of tries and the map blooms into colour. You get:
    - the answer, the year and the unit
    - one **surprising fact** taken from the data

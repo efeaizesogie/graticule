@@ -6,6 +6,7 @@ import { requestExpandedMode } from '@devvit/web/client';
 import { MAX_TRIES, type SplashState } from '../shared/api';
 import { MapView } from './map/MapView';
 import { api, pad3, prettyDate, useCountdown } from './lib';
+import { nameOf } from './map/geo';
 
 function Splash() {
   const [s, setS] = useState<SplashState | null>(null);
@@ -42,6 +43,7 @@ function Splash() {
       {g?.done ? <Done s={s} open={open} /> : (
         <>
           <h1>What does this map show?</h1>
+          <p className="sub">Most: <b>{s.most.map(nameOf).join(', ')}</b></p>
           <p className="sub mono muted">Darker = more · {MAX_TRIES} tries · {s.players.toLocaleString()} played</p>
           <button className="bar" onClick={open}>{g ? `Resume · try ${g.guesses.length + 1} of ${MAX_TRIES}` : 'Play today’s map'}</button>
         </>

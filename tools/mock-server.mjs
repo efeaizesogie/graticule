@@ -33,9 +33,9 @@ function state(n) {
   const g = games[n] ?? { guesses: [], solved: false, done: false };
   const wrong = g.guesses.length - (g.solved ? 1 : 0);
   const w = g.done ? MAX : wrong;
-  const hints = {};
-  if (w >= 1) hints.extremes = { top: d.top[0], bottom: d.bottom[0] };
-  if (w >= 2) hints.unit = d.unit;
+  const hints = { most: d.clueTop, least: d.clueBottom };
+  if (w >= 1) hints.unit = d.unit;
+  if (w >= 2) hints.nudge = d.nudge;
   const s = {
     type: 'state', n, date: date(n), isToday: n === today, bands: bandsFor(d), bandCount: d.thresholds.length + 1,
     choices: choicesFor(d, n), game: g, hints, stats: { players: 1284, dist: [512, 401, 188, 116] }, me: me(), nextAt: nextAt(),
@@ -45,7 +45,7 @@ function state(n) {
 }
 
 function api(path, q, body) {
-  if (path === '/splash') { const s = state(today); return { type: 'splash', n: today, date: s.date, bands: s.bands, bandCount: s.bandCount, players: 1284, me: me(), game: games[today]?.guesses.length ? games[today] : null, nextAt: nextAt() }; }
+  if (path === '/splash') { const s = state(today); return { type: 'splash', n: today, date: s.date, bands: s.bands, bandCount: s.bandCount, players: 1284, most: bank[(today - 1) % bank.length].clueTop, me: me(), game: games[today]?.guesses.length ? games[today] : null, nextAt: nextAt() }; }
   if (path === '/state') return state(Number(q.get('n') ?? today));
   if (path === '/guess') {
     const s = state(body.n);

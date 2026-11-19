@@ -10,7 +10,7 @@ import { feature } from 'topojson-client';
 import { geoCentroid, geoArea } from 'd3-geo';
 import countriesLib from 'i18n-iso-countries';
 import { INDICATORS } from './indicators.mjs';
-import { FACTS, NAMES } from './facts.mjs';
+import { FACTS, NAMES, NUDGES } from './facts.mjs';
 
 const require = createRequire(import.meta.url);
 const raw = (f) => JSON.parse(readFileSync(new URL(`../../data/raw/${f}`, import.meta.url), 'utf8'));
@@ -25,6 +25,9 @@ w110.objects.countries.geometries = w110.objects.countries.geometries
   .map((g) => ({ type: g.type, arcs: g.arcs, id: iso(g) ?? `X${g.id}` }));
 delete w110.objects.land;
 const present = new Set(w110.objects.countries.geometries.map((g) => g.id));
+// size of each visible country, used to break ties in the clues (big, recognisable countries first)
+const AREA = {};
+for (const f of feature(w110, w110.objects.countries).features) AREA[f.id] = (AREA[f.id] ?? 0) + geoArea(f);
 
 const wbNames = raw('countries.json');
 const names = Object.fromEntries(Object.entries(wbNames).map(([k, v]) => [k, NAMES[k] ?? v]));
@@ -87,13 +90,20 @@ const bank = ORDER.map((id, idx) => {
     return fmt(values[tok]);
   });
   const sorted = Object.entries(values).sort((a, b) => b[1] - a[1]);
+  // Clues shown from the start: countries big enough to see on the map.
+  const visible = Object.entries(values).filter(([k]) => present.has(k));
+  const byTop = [...visible].sort((a, b) => b[1] - a[1] || (AREA[b[0]] ?? 0) - (AREA[a[0]] ?? 0));
+  const byBottom = [...visible].sort((a, b) => a[1] - b[1] || (AREA[b[0]] ?? 0) - (AREA[a[0]] ?? 0));
+  const clueTop = byTop.slice(0, 3).map(([k]) => k);
+  const clueBottom = byBottom.slice(0, 3).map(([k]) => k);
+  if (!NUDGES[id]) throw new Error(`no nudge for ${id}`);
   const org = (r.sourceOrganization ?? '').replace(/\s+/g, ' ').trim();
   return {
     n: idx + 1, id, answer: ind.answer, decoys: ind.decoys, unit: ind.unit, cat: ind.diverging ? 'diverging' : ind.cat,
     year: r.year, code: ind.code, indicatorName: r.name,
     source: { name: 'World Bank, World Development Indicators', org: org.length > 160 ? org.slice(0, 157) + '…' : org,
       url: `https://data.worldbank.org/indicator/${ind.code}`, license: 'CC BY 4.0' },
-    thresholds, values, fact, count: n,
+    thresholds, values, fact, count: n, clueTop, clueBottom, nudge: NUDGES[id],
     top: sorted.slice(0, 3).map(([k, v]) => [k, v]), bottom: sorted.slice(-3).reverse().map(([k, v]) => [k, v]),
   };
 });

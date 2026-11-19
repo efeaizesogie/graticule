@@ -12,6 +12,7 @@ import {
   type VoteState,
 } from '../shared/api';
 import { MapView } from './map/MapView';
+import { iconFor } from '../shared/icons';
 import { DISPLAY, RAMPS, colorFor, formatValue, nameOf } from './map/geo';
 import { ApiError, api, pad3, prettyDate, useCountdown, useToast } from './lib';
 
@@ -103,7 +104,7 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
       const next = await api<PuzzleState>('/guess', { n: s.n, choice: picked });
       setS(next);
       setPicked(null);
-      if (!next.game.done) toast(next.game.guesses.length === 1 ? 'Not that. Hint: top & bottom countries' : 'Not that. Hint: the unit');
+      if (!next.game.done) toast(next.game.guesses.length === 1 ? 'Not that. Hint 1 unlocked: the unit' : 'Not that. Last hint unlocked');
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) safe(showLoginPrompt);
       else toast((e as Error).message);
@@ -117,7 +118,6 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
 
   const ramp = s.reveal ? RAMPS[s.reveal.category] : null;
   const wrong = new Set(s.game.solved ? s.game.guesses.slice(0, -1) : s.game.guesses);
-  const marked = s.hints.extremes && !done ? [s.hints.extremes.top[0], s.hints.extremes.bottom[0]] : undefined;
 
   return (
     <>
@@ -138,14 +138,15 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
       <div className="display">
         <span className="reg" />
         <span className="display__label mono">{done ? `${s.reveal?.year ?? ''} · ${s.reveal?.unit ?? ''}` : 'Mystery map · darker = more'}</span>
-        <MapView bands={s.bands} bandCount={s.bandCount} ramp={ramp} origin={s.reveal?.top[0]?.[0]} selected={probe} marked={marked} onPick={setProbe} />
+        <MapView bands={s.bands} bandCount={s.bandCount} ramp={ramp} origin={s.reveal?.top[0]?.[0]} selected={probe} onPick={setProbe} />
       </div>
       <Readout s={s} probe={probe} ramp={ramp} />
 
       {!done && (
         <>
+          <Clue s={s} onPick={setProbe} />
           <HintRail s={s} />
-          <p className="q">What does this map show?</p>
+          <p className="q">What do these countries have in common? What does the map show?</p>
           <div className="choices" role="listbox">
             {s.choices.map((c, i) => (
               <button
@@ -157,6 +158,7 @@ function Play({ n, go, toast }: { n: number | undefined; go: (v: View) => void; 
                 onClick={() => setPicked(i)}
               >
                 <span className="choice__key">{KEYS[i]}</span>
+                <span className="choice__icon" aria-hidden>{iconFor(c)}</span>
                 <span>{c}</span>
               </button>
             ))}
@@ -214,19 +216,36 @@ function Readout({ s, probe, ramp }: { s: PuzzleState; probe: string | null; ram
   );
 }
 
+function Clue({ s, onPick }: { s: PuzzleState; onPick: (id: string) => void }) {
+  const row = (label: string, ids: string[], swatch: string) => (
+    <div className="clue__row">
+      <span className="clue__label mono"><i style={{ background: swatch }} />{label}</span>
+      <span className="clue__names">
+        {ids.map((id) => (
+          <button key={id} className="clue__name" onClick={() => onPick(id)}>{nameOf(id)}</button>
+        ))}
+      </span>
+    </div>
+  );
+  return (
+    <div className="clue" aria-label="Clue">
+      {row('Most', s.hints.most, colorFor(DISPLAY, s.bandCount - 1, s.bandCount))}
+      {row('Least', s.hints.least, colorFor(DISPLAY, 0, s.bandCount))}
+    </div>
+  );
+}
+
 function HintRail({ s }: { s: PuzzleState }) {
   const h = s.hints;
   return (
     <div className="hints">
-      <div className={`hint ${h.extremes ? '' : 'is-locked'}`}>
-        <div className="hint__title mono"><span>Hint 1</span><span>{h.extremes ? '' : '⌧'}</span></div>
-        {h.extremes ? (
-          <div className="hint__body">▲ Most: {nameOf(h.extremes.top[0])}<br />▼ Least: {nameOf(h.extremes.bottom[0])}</div>
-        ) : <div className="hint__body muted">Top &amp; bottom country. Unlocks after 1 miss</div>}
-      </div>
       <div className={`hint ${h.unit ? '' : 'is-locked'}`}>
-        <div className="hint__title mono"><span>Hint 2</span><span>{h.unit ? '' : '⌧'}</span></div>
-        <div className={`hint__body ${h.unit ? '' : 'muted'}`}>{h.unit ? `Unit: ${h.unit}` : 'The unit. Unlocks after 2 misses'}</div>
+        <div className="hint__title mono"><span>Hint 1</span><span>{h.unit ? '' : '⌧'}</span></div>
+        <div className={`hint__body ${h.unit ? '' : 'muted'}`}>{h.unit ? `Measured in: ${h.unit}` : 'The unit. Unlocks after 1 miss'}</div>
+      </div>
+      <div className={`hint ${h.nudge ? '' : 'is-locked'}`}>
+        <div className="hint__title mono"><span>Hint 2</span><span>{h.nudge ? '' : '⌧'}</span></div>
+        <div className={`hint__body ${h.nudge ? '' : 'muted'}`}>{h.nudge ?? 'An everyday nudge. Unlocks after 2 misses'}</div>
       </div>
     </div>
   );
@@ -240,8 +259,8 @@ function HowTo({ close }: { close: () => void }) {
         <h2 id="howto-title">Guess what the map shows</h2>
         <ol>
           <li><b>Every country is shaded by one real fact.</b> Darker means more.</li>
-          <li><b>Tap countries</b> to check how high or low they are.</li>
-          <li><b>Pick 1 of 4 answers.</b> You get 3 tries. A miss unlocks a hint.</li>
+          <li><b>Look at the clue:</b> which countries have the most, and which the least? Tap any country to check it.</li>
+          <li><b>Pick 1 of 4 answers.</b> You get 3 tries, and each miss unlocks a hint.</li>
         </ol>
         <p className="muted">A new map every day. Solve it to grow your streak.</p>
         <button className="bar" style={{ width: '100%', margin: '14px 0 0' }} onClick={close}>Got it</button>

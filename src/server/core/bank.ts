@@ -18,6 +18,9 @@ export type Dataset = {
   count: number;
   top: [string, number][];
   bottom: [string, number][];
+  clueTop: string[];
+  clueBottom: string[];
+  nudge: string;
 };
 
 export const BANK = bankJson as unknown as Dataset[];
