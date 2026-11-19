@@ -1,6 +1,6 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-  "name": "graticule",
+  "name": "graticuledaily",
   "post": {
     "dir": "dist/client",
     "entrypoints": {
@@ -22,7 +22,9 @@
     "redis": true,
     "reddit": {
       "enable": true,
-      "asUser": ["SUBMIT_COMMENT"]
+      "asUser": [
+        "SUBMIT_COMMENT"
+      ]
     }
   },
   "menu": {
@@ -60,5 +62,8 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build"
+  },
+  "dev": {
+    "subreddit": "graticuledaily_dev"
   }
 }

@@ -1,6 +1,6 @@
 # Devpost submission draft: Graticule
 
-**Fill in before submitting:** app link `developers.reddit.com/apps/graticule` (exists after the first `devvit upload`), test subreddit link, demo post link, YouTube video link, and the repo link (optional).
+**Fill in before submitting:** app link `developers.reddit.com/apps/graticuledaily` (exists after the first `devvit upload`), test subreddit link, demo post link, YouTube video link, and the repo link (optional).
 
 ## Tagline
 One mystery map a day. No title, no legend. What does it measure?
