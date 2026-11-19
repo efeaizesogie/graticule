@@ -8,7 +8,7 @@ import { createRoot } from 'react-dom/client';
 import { MapView } from '../../src/client/map/MapView';
 import { H as MAP_H, RAMPS, W as MAP_W } from '../../src/client/map/geo';
 import bank from '../../src/server/bank.json';
-import { ACTIONS, CAPTIONS, MONTAGE, MONTAGE_END, PHASE, SCROLLS, BLOOM_AT, DAY, ZOOMS } from '../timeline.mjs';
+import { ACTIONS, CAPTIONS, MONTAGE, MONTAGE_END, PHASE, SCROLLS, BLOOM_AT, DAY, ZOOMS, INSERT } from '../timeline.mjs';
 
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const prog = (t, a, b) => clamp((t - a) / (b - a));
@@ -37,7 +37,7 @@ function Caption({ c, T }) {
   return (
     <div className={`cap ${c.narrow ? 'cap--narrow' : ''}`} style={{ opacity: o, transform: `translateY(${(1 - a) * 26}px)` }}>
       <div className="cap__kicker"><i />{c.kicker}</div>
-      <div className="cap__text">{c.text.split('\n').map((l, i) => <div key={i}>{l}</div>)}</div>
+      <div className="cap__text">{(window.__HAS_CLIP && c.clipText ? c.clipText : c.text).split('\n').map((l, i) => <div key={i}>{l}</div>)}</div>
     </div>
   );
 }
@@ -91,6 +91,8 @@ function Stage({ T }) {
         <div className="phone__screen" style={{ width: SCREEN.w, height: SCREEN.h }}>
           <div className="phone__status"><span>9:41</span><span className="phone__notch" /><span className="phone__icons"><i /><i /><b /></span></div>
           <iframe id="game" title="game" src={`/splash.html`} style={{ top: PHONE.status, width: PHONE.w, height: PHONE.h, transform: `scale(${PHONE.scale})` }} />
+          {window.__HAS_CLIP && <video id="clip" className="phone__clip" src={INSERT.src} muted playsInline preload="auto"
+            style={{ opacity: Math.min(prog(T, INSERT.t0, INSERT.t0 + 0.25), 1 - prog(T, INSERT.t1 - 0.25, INSERT.t1)) }} />}
         </div>
       </div>
 
@@ -104,6 +106,7 @@ function Stage({ T }) {
       {taps.map((tp, i) => {
         const k = (T - tp.t) / 0.65;
         if (k < 0 || k > 1) return null;
+        if (window.__HAS_CLIP && tp.t >= INSERT.t0 && tp.t < INSERT.t1) return null; // the recording shows its own taps
         return (
           <div key={i} className="tap" style={{ left: tp.x, top: tp.y }}>
             <span className="tap__ring" style={{ transform: `translate(-50%,-50%) scale(${0.5 + out(k) * 1.1})`, opacity: 0.9 * (1 - k) }} />
@@ -186,8 +189,20 @@ function injectFrameCss() {
   doc.head?.appendChild(st);
 }
 
-window.__frame = (T) => {
+async function seekClip(T) {
+  const v = document.getElementById('clip');
+  if (!v || T < INSERT.t0 - 0.05 || T > INSERT.t1) return;
+  const want = Math.max(0, T - INSERT.t0);
+  if (Math.abs(v.currentTime - want) < 0.001) return;
+  await new Promise((res) => {
+    v.addEventListener('seeked', res, { once: true });
+    v.currentTime = want;
+  });
+}
+
+window.__frame = async (T) => {
   flushSync(() => root.render(<Stage T={T} />));
+  await seekClip(T);
   injectFrameCss();
   scrollFor(T);
   tick(document, T);
@@ -222,4 +237,8 @@ try {
   /* ignore */
 }
 window.__DAY = DAY;
-window.__frame(0);
+window.__HAS_CLIP = false;
+fetch(INSERT.src, { method: 'HEAD' })
+  .then((r) => { window.__HAS_CLIP = r.ok; })
+  .catch(() => undefined)
+  .finally(() => window.__frame(0));

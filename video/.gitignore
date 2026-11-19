@@ -2,3 +2,4 @@ node_modules
 dist
 out
 frames
+clips/*.mp4

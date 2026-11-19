@@ -7,7 +7,7 @@ export const DAY = 6; // mock puzzle N°006 = "How many people are men"
 export const CAPTIONS = [
   { t0: 0.5, t1: 3.8, kicker: 'Graticule · N°006', text: 'No title.\nNo legend.', narrow: true },
   { t0: 4.0, t1: 7.6, kicker: 'Darker = more', text: 'Every country is shaded by one real fact.', narrow: true },
-  { t0: 8.5, t1: 11.9, kicker: 'A daily game on Reddit', text: 'One mystery map a day.' },
+  { t0: 8.5, t1: 11.9, kicker: 'A daily game on Reddit', text: 'One mystery map a day.', clipText: 'Lives right in a Reddit post.' },
   { t0: 12.2, t1: 18.7, kicker: 'Step 1', text: 'Tap countries to read them.' },
   { t0: 18.9, t1: 24.7, kicker: '4 answers · 3 tries', text: 'Miss, and a hint appears.' },
   { t0: 24.9, t1: 26.9, kicker: 'Step 2', text: 'Name what the map shows…' },
@@ -63,6 +63,9 @@ export const PHASE = {
 };
 
 export const BLOOM_AT = 26.85; // correct answer lands
+
+// Optional real-Reddit phone recording shown inside the phone (video/clips/reddit-clip.mp4, made by prep-clip.mjs).
+export const INSERT = { t0: 8.6, t1: 12.0, src: '/stage/reddit-clip.mp4' };
 
 // Camera push-ins on the phone's map: [in start, in end, out start, out end, scale]
 export const ZOOMS = [
