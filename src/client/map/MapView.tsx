@@ -53,6 +53,7 @@ function MapViewImpl({ bands, bandCount, ramp, origin, selected, marked, onPick,
         {SHAPES.map((s, i) => (
           <path
             key={`${s.id}-${i}`}
+            data-id={s.id}
             d={s.d}
             style={{ fill: fill(s.id), ...style(s.id, i) }}
             className={`${selected === s.id ? 'is-selected' : ''} ${mark.has(s.id) ? 'is-marked' : ''}`}
@@ -62,7 +63,7 @@ function MapViewImpl({ bands, bandCount, ramp, origin, selected, marked, onPick,
       </g>
       <g className="map__dots">
         {DOTS.filter((d) => bands[d.id] !== undefined).map((d) => (
-          <g key={d.id} onClick={onPick ? () => onPick(d.id) : undefined}>
+          <g key={d.id} data-id={d.id} onClick={onPick ? () => onPick(d.id) : undefined}>
             <circle cx={d.x} cy={d.y} r={9} fill="transparent" />
             <circle
               cx={d.x}

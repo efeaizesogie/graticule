@@ -7,6 +7,7 @@ import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('../dist/client/', import.meta.url));
+const STAGE = fileURLToPath(new URL('../video/dist/', import.meta.url)); // demo-video stage, same origin as the game
 const bank = JSON.parse(readFileSync(new URL('../src/server/bank.json', import.meta.url), 'utf8'));
 const PORT = Number(process.argv[2] ?? 5178);
 const MAX = 3;
@@ -63,7 +64,7 @@ function api(path, q, body) {
   return { type: 'error', message: 'unknown' };
 }
 
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.woff': 'font/woff', '.json': 'application/json', '.map': 'application/json' };
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.woff': 'font/woff', '.json': 'application/json', '.map': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   if (url.searchParams.has('day')) today = Number(url.searchParams.get('day'));
@@ -75,7 +76,7 @@ createServer(async (req, res) => {
     res.writeHead(out.type === 'error' ? 400 : 200, { 'content-type': 'application/json' });
     return res.end(JSON.stringify(out));
   }
-  const file = join(ROOT, url.pathname === '/' ? 'splash.html' : url.pathname);
+  const file = url.pathname.startsWith('/stage/') ? join(STAGE, url.pathname.slice(7) || 'index.html') : join(ROOT, url.pathname === '/' ? 'splash.html' : url.pathname);
   if (!existsSync(file)) { res.writeHead(404); return res.end('not found'); }
   res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' });
   res.end(readFileSync(file));

@@ -1,0 +1,50 @@
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--mist); }
+.stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--mist); color: var(--ink); }
+.paperwash { position: absolute; inset: 0; background: var(--paper); }
+
+.grid { position: absolute; inset: 0; }
+.grid line { stroke: var(--ink); stroke-opacity: 0.05; stroke-width: 1; }
+.reg { position: absolute; width: 26px; height: 26px; border: 0 solid var(--ink); }
+.reg--tl { top: 40px; left: 40px; border-width: 2px 0 0 2px; }
+.reg--tr { top: 40px; right: 40px; border-width: 2px 2px 0 0; }
+.reg--bl { bottom: 40px; left: 40px; border-width: 0 0 2px 2px; }
+.reg--br { bottom: 40px; right: 40px; border-width: 0 2px 2px 0; }
+.ticker { position: absolute; left: 84px; right: 84px; bottom: 48px; display: flex; gap: 40px; font-size: 15px; color: var(--muted); }
+.ticker__t { margin-left: auto; color: var(--ink); }
+
+.hook { position: absolute; transform-origin: 50% 50%; z-index: 6; }
+.hook__label { position: absolute; top: -34px; left: 8px; font-size: 18px; }
+.hook .map__countries path { stroke-width: .7; }
+
+.captions { position: absolute; left: 130px; top: 0; width: 760px; height: 1080px; }
+.cap { position: absolute; left: 0; top: 380px; width: 760px; }
+.cap__kicker { display: flex; align-items: center; gap: 14px; font: 500 22px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.cap__kicker i { width: 14px; height: 14px; background: var(--signal); display: inline-block; }
+.cap__text { margin-top: 26px; font: 400 92px/1.02 var(--serif); letter-spacing: -0.025em; }
+.cap--narrow { width: 470px; }
+.cap--narrow .cap__text { font-size: 76px; }
+
+.phone { position: absolute; padding: 14px; z-index: 5; background: #0f0e12; border-radius: 58px;
+  box-shadow: 0 0 0 2px #2a2a2e, 0 40px 80px -20px rgba(15,14,18,.35), 0 18px 30px -18px rgba(15,14,18,.4); }
+.phone__screen { position: relative; overflow: hidden; border-radius: 44px; background: var(--mist); }
+.phone__screen iframe { position: absolute; left: 0; border: 0; transform-origin: 0 0; background: var(--mist); }
+.phone__status { position: absolute; left: 0; right: 0; top: 0; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 34px; font: 600 15px var(--sans); background: var(--mist); }
+.phone__notch { width: 104px; height: 28px; border-radius: 20px; background: #0f0e12; }
+.phone__icons { display: flex; gap: 5px; align-items: center; }
+.phone__icons i { width: 4px; height: 10px; background: var(--ink); border-radius: 1px; }
+.phone__icons b { width: 22px; height: 11px; border: 1.5px solid var(--ink); border-radius: 3px; box-shadow: inset 14px 0 0 -2px var(--ink); }
+
+.tap { position: absolute; width: 0; height: 0; pointer-events: none; z-index: 20; }
+.tap__ring { position: absolute; left: 0; top: 0; width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--signal); }
+.tap__dot { position: absolute; left: -15px; top: -15px; width: 30px; height: 30px; border-radius: 50%; background: rgba(240,168,0,.55); box-shadow: 0 0 0 2px rgba(255,255,255,.7); }
+
+.montage { position: absolute; inset: 0; background: var(--paper); }
+.montage__map { position: absolute; left: 160px; top: 90px; width: 1600px; }
+.montage__map .map__countries path { stroke: var(--paper); stroke-width: .7; }
+.montage__label { position: absolute; left: 130px; bottom: 120px; }
+.montage__answer { margin-top: 18px; font: 400 84px/1 var(--serif); letter-spacing: -0.025em; }
+
+.end { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; }
+.end__mark { font-size: 46px; letter-spacing: .32em; }
+.end__line { font: 400 120px/1 var(--serif); letter-spacing: -0.03em; }
+.end__sub { font-size: 22px; color: var(--muted); letter-spacing: .08em; }

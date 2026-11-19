@@ -34,13 +34,28 @@ devvit, devvit-web, typescript, react, hono, redis, d3-geo, topojson, natural-ea
 
 ---
 
-## 60-second demo video plan (must be under 1:00, on YouTube)
-| t | shot |
+## Demo video (58.5 s, rendered from the real game code)
+File: `video/out/graticule-demo.mp4` (1920x1080, 30 fps, -14 LUFS). Thumbnail: `video/out/thumbnail.jpg`.
+Rebuild: `npm run build`, `npx vite build --config video/vite.config.mjs`, start `node tools/mock-server.mjs`, then `node video/capture.mjs`, `node video/audio.mjs`, `node video/mux.mjs`.
+
+| t | picture |
 |---|---|
-| 0–4s | Reddit feed scroll stops on the Graticule post: grey map, "What does this map measure?" |
-| 4–12s | Tap **Read the map**. Probe Qatar, the UAE, Canada (readouts tick). |
-| 12–24s | Wrong guess: the row strikes through and **Hint 1** rings the top and bottom country. |
-| 24–36s | Correct pick: **the bloom** (hold this shot), serif answer, peach fact card. |
-| 36–46s | Result card, then Post to comments; cut to the theories thread and the flair `▲ 5-day streak`. |
-| 46–54s | Vote on tomorrow's theme, then the archive grid and the leaderboard. |
-| 54–60s | Montage of 4 other blooms (forest, fertility, remittances, CO₂) and the end card "Graticule: a new map every day on Reddit". |
+| 0–7.6 | Full-frame grey mystery map. "No title. No legend." / "Every country is shaded by one real fact." |
+| 7.6–12 | The map shrinks into the phone (the Reddit post's feed card); tap Play; the How to play card |
+| 12–18.7 | Push-in: tap Canada, India, Saudi Arabia, and the readout names each level |
+| 18.9–24.7 | A wrong guess strikes through; Hint 1 rings Qatar and Hong Kong |
+| 24.9–31 | The right answer, and the map **blooms** from grey to colour (camera push-in, music stops for a beat) |
+| 31–37.4 | Surprising fact, highest and lowest countries, World Bank source |
+| 37.6–43.8 | Result card, then Post to comments; vote on tomorrow's theme |
+| 44–49.3 | Archive and leaderboard tabs |
+| 49.6–55.5 | Four full-frame blooms: forest, internet, life expectancy, crowding |
+| 55.5–58.5 | End card: "One mystery map a day." r/GraticuleDaily |
+
+**YouTube title:** Graticule: one mystery world map a day (Reddit Game of the Day Hackathon)
+
+**YouTube description:**
+Every country is shaded by one real fact. No title, no legend. What does the map show?
+Graticule is a daily guessing game for Reddit, built on Devvit (Reddit's Developer Platform). 4 answers, 3 tries; a miss unlocks a hint. Get it and the map blooms into colour with a surprising fact and its source.
+Play: https://www.reddit.com/r/GraticuleDaily
+Code: https://github.com/efeaizesogie/graticule
+Data: World Bank World Development Indicators (CC BY 4.0). Map shapes: Natural Earth.
